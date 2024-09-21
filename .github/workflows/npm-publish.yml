@@ -1,0 +1,70 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Node.js Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+/mi-proyecto  
+|-- /src  
+|   |-- index.html  
+|   |-- login.php (si es necesario, aunque típicamente en Node.js usarías Express y no PHP)  
+|-- /backend  
+|   |-- app.js (tu aplicación Node.js)  
+|   |-- package.json  
+|-- .github  
+|   |-- workflows  
+|       |-- nodejs.yml (el archivo de GitHub Actions que proporcionaste)
+
+const express = require('express');  
+const bodyParser = require('body-parser');  
+const path = require('path');  
+
+const app = express();  
+app.use(bodyParser.urlencoded({ extended: true }));  
+
+// Servir el HTML  
+app.get('/', (req, res) => {  
+  res.sendFile(path.join(__dirname, 'src', 'index.html'));  
+});  
+
+// Manejar el inicio de sesión  
+app.post('/login', (req, res) => {  
+  const { login, password } = req.body;  
+  // Tu lógica de autenticación aquí  
+  if (password === "contraseña_correcta") {  
+    res.send("Bienvenido!");  
+  } else {  
+    res.status(401).send("Contraseña incorrecta");  
+  }  
+});  
+
+// Iniciar el servidor  
+const PORT = process.env.PORT || 3000;  
+app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
